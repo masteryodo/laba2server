@@ -17,9 +17,12 @@ import java.util.logging.Logger;
 class ServerProcess implements Runnable {
 
     private final Socket socket;
-    private final BufferedReader in;
+    private BufferedReader in;
     private final PrintWriter out;
-    private ServerController controller;
+    private final ServerController controller;
+    private String command = null;
+    private String args = null;
+    private String str;
 
     public ServerProcess(Socket socket, ServerController controller) throws IOException {
         this.socket = socket;
@@ -30,9 +33,6 @@ class ServerProcess implements Runnable {
 
     @Override
     public void run() {
-        String command = null;
-        String args = null;
-        String str;
         try {
             System.out.println("Connection accepted: " + socket);
             while (true) {
@@ -45,16 +45,27 @@ class ServerProcess implements Runnable {
                         System.out.println(e);
                     }
                     
-                    if (str.equals("disconnect")) { break; } // убиваем сокет
-                    controller.getCommand(command, args);
-                    System.out.println("Echo: " + command + " "+ args );
-                    out.println(str);
+                    if (str.equals("end")) 
+                    { 
+                        System.out.println("kill socket");
+                        break; 
+                    } // убиваем сокет
+                    else 
+                    {
+                        controller.getCommand(command, args);
+                        System.out.println("Echo: " + command + " "+ args );
+                        out.println(str);
+                    }
                 }
                 catch(IOException e) {
                     e.printStackTrace();
+                    System.out.println("Ошибка ввода - вывода остановка процесса");
+                    break;
+                    
                 } 
                 catch (ParseException ex) {
                     Logger.getLogger(ServerProcess.class.getName()).log(Level.SEVERE, null, ex);
+                    
                 }
             }
         } finally {
@@ -66,6 +77,5 @@ class ServerProcess implements Runnable {
             }
         }
     }
-    
     
 }
