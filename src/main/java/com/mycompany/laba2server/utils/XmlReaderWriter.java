@@ -31,6 +31,26 @@ public class XmlReaderWriter {
         this.dbf = DocumentBuilderFactory.newInstance();
     }
     
+    /**
+     *  Читает тэг <action> исходя из него выполняется метод добавление / удаление / изменение
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
+    public String getActionFromXml() throws ParserConfigurationException, SAXException, IOException
+    {
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        try {
+            Document doc=db.parse(new File("lastCommand.xml"));
+            doc.getDocumentElement().normalize();
+            NodeList nodeLst=doc.getElementsByTagName("Action");
+            return nodeLst.item(0).getLastChild().getTextContent();
+        } catch (Exception e) {
+            System.out.println("error getActionFromXml: " + e);
+        }
+        return null;
+    }
+    
     public HashSet<Client> readClientsFromXml(String filename)
     {   
         HashSet<Client> clientsSet = new HashSet<Client>();

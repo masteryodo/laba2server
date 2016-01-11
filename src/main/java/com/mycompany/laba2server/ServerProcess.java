@@ -2,80 +2,63 @@
 package com.mycompany.laba2server;
 
 import com.mycompany.laba2server.controller.ServerController;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.text.ParseException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import java.io.*;
+import java.net.Socket;
 
 class ServerProcess implements Runnable {
 
     private final Socket socket;
-    private BufferedReader in;
-    private final PrintWriter out;
+    private BufferedInputStream fileIn;
+    private BufferedOutputStream fileOut;
     private final ServerController controller;
-    private String command = null;
-    private String args = null;
-    private String str;
 
-    public ServerProcess(Socket socket, ServerController controller) throws IOException {
+    public ServerProcess(Socket socket, ServerController controller) throws IOException 
+    {
         this.socket = socket;
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
+        fileIn = new BufferedInputStream(socket.getInputStream());
+        //fileOut = new BufferedOutputStream(socket.getOutputStream());
         this.controller = controller;
     }
 
     @Override
     public void run() {
-        try {
+
             System.out.println("Connection accepted: " + socket);
             while (true) {
-                try {
-                    str = in.readLine();
-                    try {
-                        command = str.split(";;")[0];
-                        args = str.split(";;")[1];
-                    } catch (Exception e) {
-                        System.out.println(e);
+            try {
+                // принимаем файл и пытаемся его разобрать
+                controller.getCommand(fileIn);
                     }
-                    
-                    if (str.equals("end")) 
-                    { 
-                        System.out.println("kill socket");
-                        break; 
-                    } // убиваем сокет
-                    else 
-                    {
-                        controller.getCommand(command, args);
-                        System.out.println("Echo: " + command + " "+ args );
-                        out.println(str);
-                    }
-                }
-                catch(IOException e) {
-                    e.printStackTrace();
-                    System.out.println("Ошибка ввода - вывода остановка процесса");
-                    break;
-                    
-                } 
-                catch (ParseException ex) {
-                    Logger.getLogger(ServerProcess.class.getName()).log(Level.SEVERE, null, ex);
-                    
-                }
+            catch(IOException e) {
+                e.printStackTrace();    
             }
-        } finally {
+
+            finally {
             System.out.println("closing " + socket + "...");
             try {
+                fileIn.close();
                 socket.close();
+                break;
             } catch (IOException e) {
                 e.printStackTrace();
+                break;
             }
         }
-    }
+            }}
+
+ /*   public void readInputFile(BufferedInputStream bis) throws IOException {
+        
+        File file = new File("test1.txt");
+        FileOutputStream fos = new FileOutputStream(file);
+        int in;
+        byte[] buffer = new byte[1024];
+        
+        while ((in = bis.read()) != -1){
+            fos.write(in);
+            System.out.println(in);
+        }
+        fos.close();
+    }*/
     
 }
