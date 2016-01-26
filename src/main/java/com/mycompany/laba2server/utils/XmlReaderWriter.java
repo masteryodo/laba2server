@@ -40,7 +40,8 @@ public class XmlReaderWriter {
     public String getActionFromXml() throws ParserConfigurationException, SAXException, IOException
     {
         DocumentBuilder db = dbf.newDocumentBuilder();
-        try {
+        try 
+        {
             Document doc=db.parse(new File("lastCommand.xml"));
             doc.getDocumentElement().normalize();
             NodeList nodeLst=doc.getElementsByTagName("Action");
