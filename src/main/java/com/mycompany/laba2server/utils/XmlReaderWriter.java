@@ -33,19 +33,109 @@ public class XmlReaderWriter {
     
     /**
      *  Читает тэг <action> исходя из него выполняется метод добавление / удаление / изменение
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
-    public String getActionFromXml() throws ParserConfigurationException, SAXException, IOException
+    public String getActionFromXml(File file) throws ParserConfigurationException, SAXException, IOException
     {
         DocumentBuilder db = dbf.newDocumentBuilder();
         try 
         {
-            Document doc=db.parse(new File("lastCommand.xml"));
+            Document doc=db.parse(file);
             doc.getDocumentElement().normalize();
             NodeList nodeLst=doc.getElementsByTagName("Action");
             return nodeLst.item(0).getLastChild().getTextContent();
+        } catch (Exception e) {
+            System.out.println("error getActionFromXml: " + e);
+        }
+        return null;
+    }
+    
+    /**
+     *
+     * @param file из которого нужно достать клиента
+     * @return Клиента типа Client 
+     *  Вытаскивает только 1  клиента!!!!
+     */
+    public Client getClientFromXml(File file) throws ParserConfigurationException, SAXException, IOException
+    {
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        try 
+        {
+            Document doc=db.parse(file);
+            doc.getDocumentElement().normalize();
+            NodeList nodeLst=doc.getElementsByTagName("Client");
+            Long client_id = null;
+            String name = null;
+            String address = null;
+            String phone = null;
+            for(int i = 0; i < nodeLst.getLength(); i++)
+            {   
+                NodeList client = nodeLst.item(i).getChildNodes();
+                for(int j = 0; j < client.getLength(); j++)
+                {   
+                        if(client.item(j).getNodeName().equals("client_id"))
+                        {   
+                            client_id = new Long(client.item(j).getLastChild().getTextContent());
+                        }
+                        if(client.item(j).getNodeName().equals("name"))
+                        {   
+                             name = client.item(j).getLastChild().getTextContent();
+                        }
+                        if(client.item(j).getNodeName().equals("address"))
+                        {   
+                             address = client.item(j).getLastChild().getTextContent();
+                        }
+                        if(client.item(j).getNodeName().equals("phone"))
+                        {   
+                             phone = client.item(j).getLastChild().getTextContent();
+                        }
+                
+                }
+            }
+            return new Client(client_id, name, address, phone);
+        } catch (Exception e) {
+            System.out.println("error getClientFromXml: " + e);
+        }
+        return null;
+    }
+    
+    public Order getOrderFromXml(File file) throws ParserConfigurationException, SAXException, IOException
+    {
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        try 
+        {
+            Long orderId = null;
+            Long clientId = null;
+            Date orderDate = null;
+            double orderSum = 0;
+            Document doc=db.parse(file);
+            doc.getDocumentElement().normalize();
+            NodeList nodeLst=doc.getElementsByTagName("Order");
+            for(int i = 0; i < nodeLst.getLength(); i++)
+            {   
+                NodeList order = nodeLst.item(i).getChildNodes();
+                for(int j = 0; j < order.getLength(); j++)
+                {   
+                        if(order.item(j).getNodeName().equals("order_id"))
+                        {   
+                            orderId = new Long(order.item(j).getLastChild().getTextContent());
+                        }
+                        if(order.item(j).getNodeName().equals("client_id"))
+                        {
+                            clientId = new Long(order.item(j).getLastChild().getTextContent());
+                        }
+                        if(order.item(j).getNodeName().equals("order_date"))
+                        {
+                            orderDate = dateFormat.parse(order.item(j).getLastChild().getTextContent());
+                        }
+                        if(order.item(j).getNodeName().equals("order_sum"))
+                        {
+                            orderSum = Double.parseDouble(order.item(j).getLastChild().getTextContent());
+                        }
+                    }
+                    
+                }
+            return new Order(orderId, clientId, orderDate, orderSum);
         } catch (Exception e) {
             System.out.println("error getActionFromXml: " + e);
         }

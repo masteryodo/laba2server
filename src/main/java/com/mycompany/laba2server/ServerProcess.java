@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 class ServerProcess implements Runnable {
 
@@ -16,6 +18,7 @@ class ServerProcess implements Runnable {
     private BufferedOutputStream bos;
     private final ServerController controller;
     private final String transactionFile;
+    private File file;
 
     public ServerProcess(Socket socket, ServerController controller) throws IOException 
     {
@@ -23,7 +26,8 @@ class ServerProcess implements Runnable {
         bis = new BufferedInputStream(socket.getInputStream());
         bos = new BufferedOutputStream(socket.getOutputStream());
         this.controller = controller;
-        this.transactionFile = "trans"+socket.getPort();
+        this.transactionFile = "trans"+socket.getPort()+".xml";
+        this.file = new File(transactionFile);
     }
     @Override
     public void run() {
@@ -32,32 +36,35 @@ class ServerProcess implements Runnable {
             while (true) {
             try {
                 // принимаем файл и пытаемся его разобрать
-                controller.getCommand(bis, transactionFile);
+                controller.getCommand(bis, file);
+
                 // Если пришло -1 закрываем сокет (закрывается со стороны клиента)
-                
-                System.out.println("getCommand отработал");
-                
-             if(bis.read() == -1) {
+                if(bis.read() == -1)
+                {
                         System.out.println("closing " + socket + "...");
                         try {
                             System.out.println("Все операции выполнены закрываем сокет и входящий поток");
                             bis.close();
                             socket.close();
+                            file.delete();
                             break;
                         } catch (IOException e) {
                             e.printStackTrace();
                             break;
                         } 
-                    }        
+                }        
             }
-            catch(IOException e) {
-                e.printStackTrace();    
-            }   catch (ParseException ex) {
+            catch(ParseException | IOException e) 
+            {
+                e.printStackTrace();
+            }   catch (ParserConfigurationException ex) {
+                    Logger.getLogger(ServerProcess.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SAXException ex) {
                     Logger.getLogger(ServerProcess.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
-                
-            }}
+        }
+    }
+}
 
  /*   public void readInputFile(BufferedInputStream bis) throws IOException {
         
@@ -73,4 +80,4 @@ class ServerProcess implements Runnable {
         fos.close();
     }*/
     
-}
+
