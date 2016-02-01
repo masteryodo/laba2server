@@ -2,6 +2,7 @@
 package com.mycompany.laba2server;
 
 import com.mycompany.laba2server.controller.ServerController;
+import com.mycompany.laba2server.model.InformationSystemModel;
 
 import java.io.*;
 import java.net.Socket;
@@ -16,16 +17,17 @@ class ServerProcess implements Runnable {
     private final Socket socket;
     private BufferedInputStream bis;
     private BufferedOutputStream bos;
-    private final ServerController controller;
+    private final ServerController controller ;
     private final String transactionFile;
     private File file;
+    
 
-    public ServerProcess(Socket socket, ServerController controller) throws IOException 
+    public ServerProcess(Socket socket, InformationSystemModel model) throws IOException 
     {
         this.socket = socket;
         bis = new BufferedInputStream(socket.getInputStream());
         bos = new BufferedOutputStream(socket.getOutputStream());
-        this.controller = controller;
+        this.controller = new ServerController(model, bis, bos);
         this.transactionFile = "trans"+socket.getPort()+".xml";
         this.file = new File(transactionFile);
     }
@@ -36,7 +38,7 @@ class ServerProcess implements Runnable {
             while (true) {
             try {
                 // принимаем файл и пытаемся его разобрать
-                controller.getCommand(bis, file);
+                controller.getCommand(file);
 
                 // Если пришло -1 закрываем сокет (закрывается со стороны клиента)
                 if(bis.read() == -1)

@@ -49,12 +49,7 @@ public class XmlReaderWriter {
         return null;
     }
     
-    /**
-     *
-     * @param file из которого нужно достать клиента
-     * @return Клиента типа Client 
-     *  Вытаскивает только 1  клиента!!!!
-     */
+ 
     public Client getClientFromXml(File file) throws ParserConfigurationException, SAXException, IOException
     {
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -93,7 +88,7 @@ public class XmlReaderWriter {
             }
             return new Client(client_id, name, address, phone);
         } catch (Exception e) {
-            System.out.println("error getClientFromXml: " + e);
+            System.out.println("Client not found in xml transaction file" +  e);
         }
         return null;
     }
@@ -133,11 +128,10 @@ public class XmlReaderWriter {
                             orderSum = Double.parseDouble(order.item(j).getLastChild().getTextContent());
                         }
                     }
-                    
                 }
             return new Order(orderId, clientId, orderDate, orderSum);
         } catch (Exception e) {
-            System.out.println("error getActionFromXml: " + e);
+            System.out.println("Order not found in xml transaction file " + e);
         }
         return null;
     }
@@ -186,8 +180,7 @@ public class XmlReaderWriter {
         }
             return clientsSet;
     }
-    
-    
+
     public HashSet<Order> readOrdersFromXml(String filename)
     {   
         Long orderId = null;

@@ -1,13 +1,14 @@
 package com.mycompany.laba2server.controller;
+import static com.mycompany.laba2server.Constants.*;
 import com.mycompany.laba2server.dto.Client;
 import com.mycompany.laba2server.dto.Order;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import com.mycompany.laba2server.model.InformationSystemModel;
-import com.mycompany.laba2server.view.View;
 import com.mycompany.laba2server.utils.XmlReaderWriter;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,75 +19,105 @@ public class ServerController
 {
     private final InformationSystemModel model;
     private final XmlReaderWriter xml = new XmlReaderWriter();
-    private final View view;
-    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+    private BufferedOutputStream bos;
+    private BufferedInputStream bis;
+    
+    //private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 //-------------------------------------------------------------------------------
     
-    public ServerController(InformationSystemModel model)
+    public ServerController(InformationSystemModel model, BufferedInputStream bis, BufferedOutputStream bos)
     {
         this.model = model;
-        view = new View(model);
+        this.bos = bos;
+        this.bis = bis;
+        
     }
     
     //-----------------------------------------------------------------------------------------
     
-    public void getCommand(BufferedInputStream bis, File file) throws ParseException, IOException, ParserConfigurationException, SAXException
+    public void getCommand(File file) throws ParseException, IOException, ParserConfigurationException, SAXException
     {   
         FileOutputStream fos = new FileOutputStream(file);
         int in;
-        byte[] buffer = new byte[1024];
+        //byte[] buffer = new byte[1024];
         
         while ((in = bis.read()) > 0){
             fos.write(in);
         }
         fos.close();
+        
         // как только получили файл парсим и выполняем событие
         String action = xml.getActionFromXml(file);
-        System.out.println(action);
-        
-            Client c = xml.getClientFromXml(file);
-            Order o = xml.getOrderFromXml(file);
-            if(c != null) 
-            {
-                System.out.println(c);
-            }
-            if(o != null) 
-            {
-                System.out.println(o);
-            }
-        
-    }
-    //-----------------------------------------------------------------------------
-    
-    public void add() throws ParseException
-    {
-        //model.addClient(client);
-        //model.addOrder(order);
-    }
 
-    private void remove() {
-        //model.removeClient(id);
-        //model.removeOrder(id);
+            Client client = xml.getClientFromXml(file);
+            Order order = xml.getOrderFromXml(file);
+            if(client != null) {
+                switch (action){
+                    case "add": 
+                        model.addClient(client); 
+                        System.out.println("Client: "+client.getName()+" added");
+                        break;
+                    case "modify": 
+                        model.removeClient(client.getId());
+                        model.addClient(client); 
+                        System.out.println("Client: "+client.getName()+" modifed");
+                        break;
+                    case "remove": 
+                        model.removeClient(client.getId());
+                        System.out.println("Client: "+client.getName()+" removed");
+                        break;
+                } 
+            }
+            
+            if(order != null) {
+                switch (action){
+                    case "add": 
+                        model.addOrder(order); 
+                        System.out.println("order: "+order.getOrderId()+" added");
+                        break;
+                    case "modify": 
+                        model.removeOrder(order.getOrderId());
+                        model.addOrder(order); 
+                        System.out.println("order: "+order.getOrderId()+" modifed");
+                        break;
+                    case "remove": 
+                        model.removeOrder(order.getOrderId()); 
+                        System.out.println("order: "+order.getOrderId()+" removed");
+                        break;
+                } 
+            }
+        
     }
-    
-    private void modify() throws ParseException {
-        //model.commitOrders();
-        // здесь будем тупо перезаписывать клиента или ордер полностью
-    }
-    
+     
 //-------------------------------------------------------------------------------
     
-    private void eventFromXml() {
-        String str ;
-
-        //model.importElementsFromXml(str);
+    private void sendUpdatesToClient(){
         try {
+            // отправляем  всех клиентов
+            FileInputStream fis = new FileInputStream(new File(CLIENTS_FILE));
+            int in = 0;
+
+            while ((in = fis.read()) != -1 ){
+                bos.write(in);
+            }
+            bos.write(0);
+            bos.flush();
+            fis.close();
             
-            System.out.println("Импорт успешно завершен");
+            // отправляем все ордера
+            fis = new FileInputStream(new File(ORDERS_FILE));
+            in = 0;
+            while ((in = fis.read()) != -1 ){
+                bos.write(in);
+            }
+            bos.write(0);
+            bos.flush();
+            fis.close();
+            
+            
         } catch (Exception e) {
-            System.out.println("Импорт завершился ошибкой "+e);
+            System.out.println("sendUpdatesToClient: "+e);
         }
-        
     }
 
 }

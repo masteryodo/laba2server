@@ -34,7 +34,7 @@ public class InformationSystemModel
         return clientsSet;
     }
     
-    public void addClient(Client client)
+    public synchronized void addClient(Client client)
     {   
         clientsSet.add(client);
         commitClients();
@@ -56,7 +56,7 @@ public class InformationSystemModel
         }
     }
     
-    public void addOrder(Order order)
+    public synchronized void addOrder(Order order)
     {   
         if ( getClientById(order.getClientId()) != null)
         {
@@ -69,7 +69,7 @@ public class InformationSystemModel
         }
         
     }
-    public void removeOrder(long id)
+    public synchronized void removeOrder(long id)
     {   
         ordersSet.remove(getOrderById(id));
         commitOrders();
