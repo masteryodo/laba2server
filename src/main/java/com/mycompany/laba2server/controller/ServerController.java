@@ -57,11 +57,14 @@ public class ServerController
                         model.addClient(client); 
                         System.out.println("Client: "+client.getName()+" added");
                         break;
+                        
                     case "modify": 
+                        System.out.println("modify client " + client);
                         model.removeClient(client.getId());
-                        model.addClient(client); 
+                        model.addClient(client);
                         System.out.println("Client: "+client.getName()+" modifed");
                         break;
+                        
                     case "remove": 
                         model.removeClient(client.getId());
                         System.out.println("Client: "+client.getName()+" removed");
@@ -81,17 +84,24 @@ public class ServerController
                         System.out.println("order: "+order.getOrderId()+" modifed");
                         break;
                     case "remove": 
-                        model.removeOrder(order.getOrderId()); 
+                        System.out.println("Удаляется ордер " + order.getOrderId() );
+                        System.out.println(model);
+                        try {
+                            model.removeOrder(order.getOrderId()); 
+                        } catch (Exception e) {
+                            System.out.println("case remove " + e);
+                        }
+                        
                         System.out.println("order: "+order.getOrderId()+" removed");
                         break;
                 } 
             }
-        
+    sendUpdatesToClient();
     }
      
 //-------------------------------------------------------------------------------
     
-    private void sendUpdatesToClient(){
+    public void sendUpdatesToClient(){
         try {
             // отправляем  всех клиентов
             FileInputStream fis = new FileInputStream(new File(CLIENTS_FILE));

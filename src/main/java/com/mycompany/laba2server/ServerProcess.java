@@ -35,6 +35,7 @@ class ServerProcess implements Runnable {
     public void run() {
 
             System.out.println("Connection accepted: " + socket);
+            controller.sendUpdatesToClient();
             while (true) {
             try {
                 // принимаем файл и пытаемся его разобрать

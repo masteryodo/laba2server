@@ -39,21 +39,21 @@ public class InformationSystemModel
         clientsSet.add(client);
         commitClients();
     }
-    public void removeClient(long id)
-    {   
-        if ( getClientById(id) != null)
-        {
-        clientsSet.remove(getClientById(id));
-        commitClients();
-        for (Order order : getOrdersByClientId(id)) 
-        {
-              removeOrder(order.getOrderId());
+    public synchronized void removeClient(long id){
+        System.out.println("removeClient " + id);
+        try {
+            if ( getClientById(id) != null) {
+            clientsSet.remove(getClientById(id));
+            commitClients();
+            }
+            else {
+                System.out.println("Ошибка записи! Клиент с ID " + String.valueOf(id) +" не существует !");
+            }
+            
+        } catch (Exception e) {
+            System.out.println("removeClient: " + e);
         }
-        }
-        else
-        {
-            System.out.println("Ошибка записи! Клиент с ID " + String.valueOf(id) +" не существует !");
-        }
+        
     }
     
     public synchronized void addOrder(Order order)
@@ -69,10 +69,19 @@ public class InformationSystemModel
         }
         
     }
-    public synchronized void removeOrder(long id)
+    public void removeOrder(long id)
     {   
-        ordersSet.remove(getOrderById(id));
-        commitOrders();
+        try {
+            System.out.println("model try to remove order");
+            ordersSet.remove(getOrderById(id));
+            System.out.println("order was removed");
+            commitOrders();
+        } catch (Exception e) {
+            System.out.println("model.remove() error: " + e);
+        }
+ 
+        
+        
     }
     public Client getClientById(long id)
     {   

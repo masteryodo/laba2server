@@ -12,15 +12,10 @@ import javax.xml.parsers.ParserConfigurationException;
 public class ServerLifeCycle
 {
     public static final int PORT = 8181;
-    private static InformationSystemModel model;
-    
-    public ServerLifeCycle() throws ParserConfigurationException {
-        this.model = new InformationSystemModel();
-    }
     
     public static void main(String[] args) throws ParserConfigurationException, ParseException, IOException
-    {
-        //ServerController controller = new ServerController(model);
+    {   
+        InformationSystemModel model = new InformationSystemModel();
         ServerSocket s = new ServerSocket(PORT);
         System.out.println("Started: " + s);
         try {
