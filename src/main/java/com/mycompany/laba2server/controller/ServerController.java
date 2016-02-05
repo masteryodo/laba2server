@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
+import jdk.nashorn.internal.ir.BreakNode;
 import org.xml.sax.SAXException;
 
 //--------------------------------------------------------------------------------
@@ -37,13 +38,14 @@ public class ServerController
     
     public void getCommand(File file) throws ParseException, IOException, ParserConfigurationException, SAXException
     {   
+
         FileOutputStream fos = new FileOutputStream(file);
-        int in;
-        //byte[] buffer = new byte[1024];
-        
-        while ((in = bis.read()) > 0){
+        int in = 0;
+
+        while ((in = bis.read()) != 0){
             fos.write(in);
         }
+        System.out.println(bis.available());
         fos.close();
         
         // как только получили файл парсим и выполняем событие
@@ -97,6 +99,7 @@ public class ServerController
                 } 
             }
     sendUpdatesToClient();
+        System.out.println("getcommand конец итерации");
     }
      
 //-------------------------------------------------------------------------------
