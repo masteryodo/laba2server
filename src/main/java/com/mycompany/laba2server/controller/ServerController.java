@@ -37,15 +37,18 @@ public class ServerController
     //-----------------------------------------------------------------------------------------
     
     public void getCommand(File file) throws ParseException, IOException, ParserConfigurationException, SAXException
-    {   
+    {   //TODO PROBLEM
 
         FileOutputStream fos = new FileOutputStream(file);
         int in = 0;
 
-        while ((in = bis.read()) != 0){
+        while ((in = bis.read()) != -1){
             fos.write(in);
+            if(bis.available() == 0){
+                break;
+            }
         }
-        System.out.println(bis.available());
+        
         fos.close();
         
         // как только получили файл парсим и выполняем событие
