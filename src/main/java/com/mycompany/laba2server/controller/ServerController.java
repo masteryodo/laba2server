@@ -40,7 +40,7 @@ public class ServerController
     {   //TODO PROBLEM
 
         FileOutputStream fos = new FileOutputStream(file);
-        int in = 0;
+        int in;
 
         while ((in = bis.read()) != -1){
             fos.write(in);
