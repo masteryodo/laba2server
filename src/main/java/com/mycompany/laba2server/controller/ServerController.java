@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import javax.xml.parsers.ParserConfigurationException;
 import jdk.nashorn.internal.ir.BreakNode;
 import org.xml.sax.SAXException;
@@ -22,34 +23,41 @@ public class ServerController
     private final XmlReaderWriter xml = new XmlReaderWriter();
     private BufferedOutputStream bos;
     private BufferedInputStream bis;
+    private Socket socket;
     
     //private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 //-------------------------------------------------------------------------------
     
-    public ServerController(InformationSystemModel model, BufferedInputStream bis, BufferedOutputStream bos)
+    public ServerController(InformationSystemModel model, BufferedInputStream bis, BufferedOutputStream bos, Socket socket)
     {
         this.model = model;
         this.bos = bos;
         this.bis = bis;
-        
+        this.socket = socket;
     }
     
     //-----------------------------------------------------------------------------------------
     
     public void getCommand(File file) throws ParseException, IOException, ParserConfigurationException, SAXException
-    {   //TODO PROBLEM
-
+    {   
+        
         FileOutputStream fos = new FileOutputStream(file);
-        int in;
+        int in = 0;
 
-        while ((in = bis.read()) != -1){
-            fos.write(in);
-            if(bis.available() == 0){
+        while ((in = bis.read()) != 0){
+            if (in == -1) {
+                fos.close();
+                file.delete();
+                bis.close();
+                socket.close();
+                System.out.println("Socket is closed");
                 break;
             }
+            fos.write(in);
         }
-        
         fos.close();
+        if (file.exists()) {
+            
         
         // как только получили файл парсим и выполняем событие
         String action = xml.getActionFromXml(file);
@@ -96,11 +104,12 @@ public class ServerController
                         } catch (Exception e) {
                             System.out.println("case remove " + e);
                         }
-                        
+
                         System.out.println("order: "+order.getOrderId()+" removed");
                         break;
                 } 
             }
+       }
     sendUpdatesToClient();
         System.out.println("getcommand конец итерации");
     }

@@ -27,7 +27,7 @@ class ServerProcess implements Runnable {
         this.socket = socket;
         bis = new BufferedInputStream(socket.getInputStream());
         bos = new BufferedOutputStream(socket.getOutputStream());
-        this.controller = new ServerController(model, bis, bos);
+        this.controller = new ServerController(model, bis, bos, socket);
         this.transactionFile = "trans"+socket.getPort()+".xml";
         this.file = new File(transactionFile);
     }
@@ -38,23 +38,16 @@ class ServerProcess implements Runnable {
             controller.sendUpdatesToClient();
             while (true) {
             try {
-                // принимаем файл и пытаемся его разобрать
-                controller.getCommand(file);
 
-                // Если пришло -1 закрываем сокет (закрывается со стороны клиента)
-                if(bis.read() == -1)
-                {
-                        System.out.println("closing " + socket + "...");
-                        try {
-                            System.out.println("Все операции выполнены закрываем сокет и входящий поток");
-                            bis.close();
-                            socket.close();
-                            file.delete();
-                            break;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            break;
-                        } 
+                if(!socket.isClosed())
+            {
+                controller.getCommand(file);
+            } 
+                else{
+                        
+                    System.out.println("Все операции выполнены закрываем сокет и входящий поток");
+                    file.delete();
+                    break;
                 }        
             }
             catch(ParseException | IOException e) 
@@ -64,23 +57,11 @@ class ServerProcess implements Runnable {
                     Logger.getLogger(ServerProcess.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (SAXException ex) {
                     Logger.getLogger(ServerProcess.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                }    
+            }
         }
     }
-}
 
- /*   public void readInputFile(BufferedInputStream bis) throws IOException {
-        
-        File file = new File("test1.txt");
-        FileOutputStream fos = new FileOutputStream(file);
-        int in;
-        byte[] buffer = new byte[1024];
-        
-        while ((in = bis.read()) != -1){
-            fos.write(in);
-            System.out.println(in);
-        }
-        fos.close();
-    }*/
-    
 
+
+ 
