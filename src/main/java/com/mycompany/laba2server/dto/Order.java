@@ -7,7 +7,7 @@ import java.util.Date;
 public class Order
 {
     private final long orderId;
-    private long clientId;  // каждый заказ связан с клиентом по id клиента
+    private long clientId;  
     private Date orderDate;
     private double orderSum;
     private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");

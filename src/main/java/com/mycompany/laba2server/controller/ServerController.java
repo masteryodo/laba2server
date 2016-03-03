@@ -13,10 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import javax.xml.parsers.ParserConfigurationException;
-import jdk.nashorn.internal.ir.BreakNode;
 import org.xml.sax.SAXException;
 
-//--------------------------------------------------------------------------------
 public class ServerController
 {
     private final InformationSystemModel model;
@@ -24,10 +22,7 @@ public class ServerController
     private BufferedOutputStream bos;
     private BufferedInputStream bis;
     private Socket socket;
-    
-    //private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-//-------------------------------------------------------------------------------
-    
+
     public ServerController(InformationSystemModel model, BufferedInputStream bis, BufferedOutputStream bos, Socket socket)
     {
         this.model = model;
@@ -35,9 +30,7 @@ public class ServerController
         this.bis = bis;
         this.socket = socket;
     }
-    
-    //-----------------------------------------------------------------------------------------
-    
+  
     public void getCommand(File file) throws ParseException, IOException, ParserConfigurationException, SAXException
     {   
         
@@ -57,9 +50,7 @@ public class ServerController
         }
         fos.close();
         if (file.exists()) {
-            
-        
-        // как только получили файл парсим и выполняем событие
+
         String action = xml.getActionFromXml(file);
 
             Client client = xml.getClientFromXml(file);
@@ -113,12 +104,9 @@ public class ServerController
     sendUpdatesToClient();
         System.out.println("getcommand конец итерации");
     }
-     
-//-------------------------------------------------------------------------------
-    
+
     public void sendUpdatesToClient(){
         try {
-            // отправляем  всех клиентов
             FileInputStream fis = new FileInputStream(new File(CLIENTS_FILE));
             int in = 0;
 
@@ -129,7 +117,6 @@ public class ServerController
             bos.flush();
             fis.close();
             
-            // отправляем все ордера
             fis = new FileInputStream(new File(ORDERS_FILE));
             in = 0;
             while ((in = fis.read()) != -1 ){

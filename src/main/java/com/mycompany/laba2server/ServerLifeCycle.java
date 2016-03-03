@@ -6,13 +6,12 @@ import com.mycompany.laba2server.model.InformationSystemModel;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import static com.mycompany.laba2server.Constants.*;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class ServerLifeCycle
 {
-    public static final int PORT = 8181;
-    
+
     public static void main(String[] args) throws ParserConfigurationException, ParseException, IOException
     {   
         InformationSystemModel model = new InformationSystemModel();

@@ -3,7 +3,6 @@ package com.mycompany.laba2server;
 
 import com.mycompany.laba2server.controller.ServerController;
 import com.mycompany.laba2server.model.InformationSystemModel;
-
 import java.io.*;
 import java.net.Socket;
 import java.text.ParseException;
